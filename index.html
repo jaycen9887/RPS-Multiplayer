@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Rock Paper Scissors</title>
+        
+         <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+      
+        <!-- Latest compiled and minified CSS -->
+          <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha383-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg3Va+PmSTsz/K68vbdEjh3u" crossorigin="anonymous">
+        
+        <!-- Link to Firebase.js -->
+        <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+      
+        <!-- Added link to the jQuery Library -->
+        <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+      
+        
+    </head>
+    
+    <body>
+        <header><h1>Rock Paper Scissors: Multiplayer</h1></header>
+        <div id="input">
+            <input type="text" id="username" placeholder="Name">
+            <input id="nameSubmit" type="submit" value="Submit">
+        </div>
+        
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-3 col-md-3 col-sm-3  col-xs-3" id="player1">
+                    
+                    <span id="player1Name"></span>
+                    
+                    <div id="player1Choices" class="invisible">
+                        <p class="choice" id="rock">Rock</p>
+                        <p class="choice" id="paper">Paper</p>
+                        <p class="choice" id="scissors">Scissors</p>
+                    </div>
+                    
+                    <span id="player1Stats"></span>
+                </div>
+                
+                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" id="action">
+                    <span id="information"></span>
+                </div>
+                
+                <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3" id="player2">
+                    <span id="player2Name"></span>
+                    
+                    <div id="player2Choices" class="invisible">
+                        <p class="choice" id="rock">Rock</p>
+                        <p class="choice" id="paper">Paper</p>
+                        <p class="choice" id="scissors">Scissors</p>
+                    </div>
+                    
+                    <span id="player2Stats"></span>
+                </div>
+            </div>    
+            <div id="chat">
+                <div id="chatBox"></div>
+                <form >
+                    <input id="text" type="text">
+                    <input id="chatSubmit" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+        
+        <script src="assets/javascript/script.js"></script>
+    </body>
+</html>

@@ -1,0 +1,76 @@
+.invisible {
+    display: none;
+}
+
+body{
+    
+}
+
+header{
+    text-align: center;
+}
+
+#input {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 90%;
+}
+
+.row{
+    margin-top: 40px;
+    margin-bottom: 40px;
+    padding-left: 8%;
+}
+
+#player1{
+    height: 200px;
+    border: 1px solid;
+    text-align: center;
+}
+
+#player1Choices {
+    margin-top: 35px;   
+}
+
+#player1Choices:hover {
+    cursor: pointer;
+}
+
+#action{
+    height: 200px;
+    border: 1px solid;
+}
+
+#player2{
+    height: 200px;
+    border: 1px solid;
+    text-align: center;
+}
+
+#player2Choices {
+    margin-top: 35px;   
+}
+
+#player2Choices:hover {
+    cursor: pointer;
+}
+
+#chat{
+    
+}
+
+#chatBox {
+    width: 500px;
+    height: 150px;
+    margin: auto;
+    border: 1px solid #CCC;
+    margin-bottom: 20px;
+    overflow: auto;
+}
+
+#text{
+    text-align: center;
+}
