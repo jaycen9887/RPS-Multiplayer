@@ -2,12 +2,27 @@
     display: none;
 }
 
+html {
+    background-color: #0079BF;
+}
+
 body{
-    
+    position: relative;
+    top: -20px;
+    width: 100%;
+    height: 100%;
+    background-color: #0079BF;
 }
 
 header{
+    margin-top: 20px;
+    padding-top: 20px;
     text-align: center;
+    background-color: #0079BF;
+}
+
+header h1 {
+    color: white;
 }
 
 #input {
@@ -17,6 +32,8 @@ header{
 
 .container {
     width: 90%;
+    background-color: #0079BF;
+    margin-top: 5px;
 }
 
 .row{
@@ -27,8 +44,10 @@ header{
 
 #player1{
     height: 200px;
-    border: 1px solid;
+    border: 1px solid white;
+    box-shadow: 5px 5px 5px #ccc;
     text-align: center;
+    color: white;
 }
 
 #player1Choices {
@@ -41,13 +60,17 @@ header{
 
 #action{
     height: 200px;
-    border: 1px solid;
+    border: 1px solid white;
+    box-shadow: 5px 5px 5px #ccc;
+    color: white;
 }
 
 #player2{
     height: 200px;
-    border: 1px solid;
+    border: 1px solid white;
+    box-shadow: 5px 5px 5px #ccc;
     text-align: center;
+    color: white;
 }
 
 #player2Choices {
@@ -58,19 +81,30 @@ header{
     cursor: pointer;
 }
 
-#chat{
-    
+#chat{ 
 }
 
 #chatBox {
     width: 500px;
     height: 150px;
     margin: auto;
-    border: 1px solid #CCC;
+    border: 1px solid #ccc;
     margin-bottom: 20px;
     overflow: auto;
+    background-color: white;
+    padding: 5px;
 }
 
-#text{
+form{
     text-align: center;
+}
+
+.player1Comments {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.player2Comments {
+    padding-top: 0px;
+    margin-top: 0px;
 }

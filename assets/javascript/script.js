@@ -11,23 +11,29 @@
 
 //Reference to the database
 var database = firebase.database();
+var ref = database.ref();
+var playersRef = ref.child("players/");
 
 //Variables
 var player1 = null;
 var player1Name = "";
 var player1Choice = [];
+var p1CurrentChoice = "";
 var player1Wins = 0;
 var player1Losses = 0;
 var player1Ties = 0;
 var player1Comments = [];
+var player1I = 0;
 
 var player2 = null;
 var player2Name = "";
 var player2Choice = [];
+var p2CurrentChoice = "";
 var player2Wins = 0;
 var player2Losses = 0;
 var player2Ties = 0;
 var player2Comments = [];
+var player2I = 0;
 
 var round = 0;
 
@@ -37,11 +43,6 @@ var player;
 var players;
 
 var turn = 1;
-
-function play(){
-    turn = 1;
-    whoAmI();
-}
 
 function writePlayerData(player, name, wins, losses, ties, comment){
     database.ref('players/' + player).set({
@@ -53,14 +54,6 @@ function writePlayerData(player, name, wins, losses, ties, comment){
     });
 }
 
-function whoAmI(){
-    if(window.self.name === "player1") {
-        console.log("I am " + window.self.name);
-    }else if (window.self.name === "player2"){
-        console.log("I am " + window.self.name);
-    }
-}
-
 $("#nameSubmit").on("click", function(e){
     e.preventDefault();
     
@@ -69,7 +62,6 @@ $("#nameSubmit").on("click", function(e){
         player1Name = $("#username").val().trim();
         writePlayerData('Player1', player1Name, player1Wins, player1Losses, player1Ties, player1Comments);
         window.self.name = "player1";
-        console.log("Window.self.name: " + window.self.name);
         
     }else {
         player2Name = $("#username").val().trim();
@@ -81,11 +73,9 @@ $("#nameSubmit").on("click", function(e){
     if(window.self.name === "player1"){
         $("#input").toggleClass("invisible");
         $("#player1Choices").toggleClass("invisible");
-        /*$("#username").toggle("readonly");*/
     }else {
         $("#input").toggleClass("invisible");
         $("#player2Choices").toggleClass("invisible");
-       /* $("#username").toggle("readonly");*/
     }
     
     $("#username").empty();
@@ -96,34 +86,62 @@ $("#chatSubmit").on("click", function(e){
     e.preventDefault();
     if(window.self.name === "player1"){
        player1Comments.push($("#text").val().trim());
+        player1I++;
         updateComments("Player1", player1Comments);
+        
     }else if(window.self.name === "player2"){
        player2Comments.push($("#text").val().trim());
+        player2I++;
         updateComments("Player2", player2Comments);
+
     } 
 });
 
-database.ref("players/Player1/comments").on("value", function(snapshot){
-     var p = $("<p>");
+database.ref("players/Player1/comment").on("value", function(snapshot){
+    var comment = snapshot.val()[player1I];
+    var p = $("<p>");
+    p.addClass("player1Comment");
     //display chat in chatBox 
-    if($("#text").val().trim() !== ""){
-        p.text($("#text").val().trim());
+    if(comment !== ""){
+        p.text(comment);
         $("#chatBox").append(p);
+        if (window.self.name === "player1"){
+            $(".player1Comment").css({"background-color": "#0079BF", "width": "100%", "color": "white"});
+        }else {
+            $(".player1Comment").css({"color": "#0079BF", "background-color": "white"});
+        }
+        player1I++;
     }
+    window.setInterval(function(){
+        var el = $("#chatBox");
+        el.scrollTop = el.scrollHeight;
+    }, 5000);
 });
 
-database.ref("players/Player2/comments").on("value", function(snapshot){
-     var p = $("<p>");
+database.ref("players/Player2/comment").on("value", function(snapshot){
+    var comment = snapshot.val()[player2I];
+    var p = $("<p>");
+    p.addClass("player2Comment");
     //display chat in chatBox 
-    if($("#text").val().trim() !== ""){
-        p.text($("#text").val().trim());
+    if(comment !== ""){
+        p.text(comment);
         $("#chatBox").append(p);
+        if (window.self.name === "player2"){
+            $(".player2Comment").css({"background-color": "#0079BF", "width": "100%", "color": "white"});
+        }else {
+            $(".player2Comment").css({"color": "#0079BF", "background-color": "white"});
+        }
+        player2I++;
     }
+    window.setInterval(function(){
+        var el = $("#chatBox");
+        el.scrollTop = el.scrollHeight;
+    }, 5000);
+    
 });
 
 database.ref("players/").on("value", function(snapshot){
     if(snapshot.child("Player1").exists()){
-        console.log("Player 1 exists");
         
         player = 2;
         players = 1;
@@ -132,53 +150,41 @@ database.ref("players/").on("value", function(snapshot){
         player1Name = player1.name;
         $("#player1Name").text(player1.name);
         
-    }else {
-        console.log("Player 1 does NOT exist");
-        
+    }else { 
         player = 1;
         player1Name = "";
         $("#player1Name").text("Enter name above");
-         
     }
     
     if(snapshot.child("Player2").exists()){
-        console.log("Player 2 exists");
-        
         players = 2;
         player2 = snapshot.val().Player2;
         player2Name = player2.name;
         $("#player2Name").text(player2.name);
-        
-        if(players == 2){
-        play();
-    }
-        
     }else {
-        console.log("Player 2 does NOT exist");
-   
         player2Name = "";
-        $("#player2Name").text("Enter name above");
-          
+        $("#player2Name").text("Enter name above"); 
     }
 });
 
+database.ref("players/bothResponses").on("value", function(snapshot){
+   console.log(snapshot.val()); 
+    bothResponses = snapshot.val();
+});
 
  database.ref("players/Player1/rounds").on("value", function(snapshot){
             
     var player1 = snapshot.val().playerChoice;
                         
-    player1Choice = player1[round];
-    console.log("P1 CHANGED");
+    p1CurrentChoice = player1[round];
 });
         
 database.ref("players/Player2/rounds").on("value", function(snapshot){
             
     var player2 = snapshot.val().playerChoice;
                         
-    player2Choice = player2[round];
-            
-    console.log("P2 CHANGED");
-    console.log(snapshot);
+    p2CurrentChoice = player2[round];
+    
 });
 
 function checkWin (p1Choice, p2Choice){
@@ -246,24 +252,43 @@ function checkWin (p1Choice, p2Choice){
     
     updateData("Player2", player2Wins, player2Losses, player2Ties);
     
-    round++;
+    nextRound();
+}
+
+function nextRound (){
+    round++; 
+    bothResponses = 0;
+    updateResponses(bothResponses);
+    if(window.self.name === "player1"){
+        $("#player1Choices").toggleClass("invisible");
+    }else if(window.self.name === "player2"){
+        $("#player2Choices").toggleClass("invisible");
+    }
 }
 
 function updateResponses(responses){
-   var statusRef = database.ref("players/");
-    var key = statusRef.push().key;
+    playersRef.update({
+       "bothResponses": responses 
+    });
+    /*var key = statusRef.push().key;
     var update = {};
     update[key] = {
         bothResponses: responses,
     };
-    var result = statusRef.update(update);
+    var result = statusRef.update(update);*/
      
 }
 
 
 function updateData(player, wins, losses, ties){
-    var statusRef = database.ref("players/" + player);
-    var key = statusRef.push().key;
+    var statusRef = playersRef.child(player);
+    
+    statusRef.update({
+        "wins": wins,
+        "losses": losses,
+        "ties": ties
+    });
+    /*var key = statusRef.push().key;
     var update = {};
     update[key] = {
         wins: wins,
@@ -272,44 +297,40 @@ function updateData(player, wins, losses, ties){
     };
     var result = statusRef.update(update);
     
-    
+    */
 }
 
 function updateComments(player, comments){
-   var commentRef = database.ref("players/" + player + "/comments");
-    var key = commentRef.push().key;
-    var update = {};
-    update[key] = {
-        comments: comments
-    };
-    var result = commentRef.update(update);
+    
+   var commentRef = playersRef.child(player);
+    
+    commentRef.update({
+        "comment": comments    
+    });
     
 }
 
 
 $(document).ready(function(){
     
-    
     //checks if window was refreshed
    if(performance.navigation.type == 1){
-        console.info("This Page is reloaded");
+       database.ref().child("players/bothResponses").remove();
        if(window.self.name == "player1"){
            database.ref().child("players/Player1").remove();
            window.self.name = "";
-           console.log("PLAYER ONE!!!!!!!");
        }else if(window.self.name == "player2"){
           database.ref().child("players/Player2").remove();
            window.self.name = "";
        }
        
-    }else {
-        console.info("This page is not reloaded");
-    } 
+    }
     
     $(".choice").on("click", function(){ 
    
         if(window.self.name == "player1"){
-            player1Choice.push($(this)[0].innerHTML);
+            var answer = $(this)[0].innerHTML;
+            player1Choice.push(answer);
             bothResponses++;
             updateResponses(bothResponses);
             database.ref("players/Player1/rounds").set({
@@ -317,8 +338,11 @@ $(document).ready(function(){
             
             });
             
+            $("#player1Choices").toggleClass("invisible");
+            
         }else if(window.self.name == "player2"){
-            player2Choice.push($(this)[0].innerHTML);
+            var answer = $(this)[0].innerHTML;
+            player2Choice.push(answer);
             bothResponses++;
             updateResponses(bothResponses);
             database.ref("players/Player2/rounds").set({
@@ -326,23 +350,25 @@ $(document).ready(function(){
             
             });
             
-            
+            $("#player2Choices").toggleClass("invisible");
         }
         
-        database
+        
+        
        
         if(bothResponses === 2){
-            checkWin(player1.rounds.playerChoice[round], player2.rounds.playerChoice[round]);
+            checkWin(p1CurrentChoice, p2CurrentChoice);
             
-            var p = $("<p>");
-            p.append(player1.rounds.playerChoice[round]);
+            var p1 = $("<p>");
+            p1.addClass("");
+            var p2 = $("<p>"); 
+            p1.append(p1CurrentChoice);
             $("#action").append(p);
-            p.append(player2.rounds.playerChoice[round]);
+            p.append(p2CurrentChoice);
             $("#action").append(p);    
         }
 
     });
-  
 });
 
 
