@@ -46,6 +46,8 @@ var turn = 1;
 
 //functions
 
+
+//pushes data to the database
 function writePlayerData(player, name, wins, losses, ties, comment){
     database.ref('players/' + player).set({
         name: name,
@@ -56,15 +58,18 @@ function writePlayerData(player, name, wins, losses, ties, comment){
     });
 }
 
+
 $("#nameSubmit").on("click", function(e){
     e.preventDefault();
     
+    //setting up player 1 and pushing data to the database
     if(player == 1){
         
         player1Name = $("#username").val().trim();
         writePlayerData('Player1', player1Name, player1Wins, player1Losses, player1Ties, player1Comments);
         window.self.name = "player1";
         
+        //setting up player2 and pushing data to the database
     }else {
         player2Name = $("#username").val().trim();
         writePlayerData('Player2', player2Name, player2Wins, player2Losses, player2Ties, player2Comments);
@@ -72,9 +77,11 @@ $("#nameSubmit").on("click", function(e){
         
     }
     
+    //removes the invisible class from player1Choices
     if(window.self.name === "player1"){
         $("#input").toggleClass("invisible");
         $("#player1Choices").toggleClass("invisible");
+        //removes the invisible class from player2Choices
     }else {
         $("#input").toggleClass("invisible");
         $("#player2Choices").toggleClass("invisible");
@@ -86,11 +93,14 @@ $("#nameSubmit").on("click", function(e){
 
 $("#chatSubmit").on("click", function(e){
     e.preventDefault();
+    
+    //Pushes comment in to player1Comments array then runs the updateComments function
     if(window.self.name === "player1"){
        player1Comments.push($("#text").val().trim());
         player1I++;
         updateComments("Player1", player1Comments);
         
+        //Pushes comment in to player2Comments array then runs the updateComments function
     }else if(window.self.name === "player2"){
        player2Comments.push($("#text").val().trim());
         player2I++;
@@ -161,46 +171,17 @@ function checkWin (p1Choice, p2Choice){
             }
             break;
     }
-    
-    
 }
 
+//sets up for the next round
 function nextRound (){
+    
+    //updates the database key Player1
     updateData("Player1", player1Wins, player1Losses, player1Ties);
     
+    //updates the database key Player2
     updateData("Player2", player2Wins, player2Losses, player2Ties);
 
-    database.ref("players/Player1").on("value", function(snapshot){
-        if(window.self.name === "player1"){
-            var player1 = snapshot.val();
-            player1Wins = player1.wins;
-            player1Losses = player1.losses;
-            player1Ties = player1.ties;
-        }else if (window.self.name === "player2"){
-            var player1 = snapshot.val();
-            player1Wins = player1.wins;
-            player1Losses = player1.losses;
-            player1Ties = player1.ties;
-        }
-        
-    });
-
-    database.ref("players/Player2").on("value", function(snapshot){
-        
-        if(window.self.name === "player1"){
-            var player2 = snapshot.val();
-            player2Wins = player2.wins;
-            player2Losses = player2.losses;
-            player2Ties = player2.ties;
-        }
-        if (window.self.name === "player2"){
-            var player2 = snapshot.val();
-            player2Wins = player2.wins;
-            player2Losses = player2.losses;
-            player2Ties = player2.ties;
-        }
-    });
-    
     round++; 
              
     bothResponses = 0;
@@ -251,6 +232,50 @@ function updateComments(player, comments){
 }
 
 //database calls
+
+database.ref("players/Player1").on("value", function(snapshot){
+    var player1 = snapshot.val();
+    var p= $("<p>");
+    
+    //checks if the window belongs to player1 
+    if(window.self.name === "player1"){
+        //sets wins,losses,and ties for player1
+        player1Wins = player1.wins;
+        player1Losses = player1.losses;
+        player1Ties = player1.ties;
+        
+        $("#player1Stats").html("W:" + player1.wins + " L:" + player1.losses + " T:" + player1.ties);
+    }
+    if (window.self.name === "player2"){
+        player1Wins = player1.wins;
+        player1Losses = player1.losses;
+        player1Ties = player1.ties;
+
+        $("#player1Stats").html("W:" + player1.wins + " L:" + player1.losses + " T:" + player1.ties);
+    }
+
+});
+
+database.ref("players/Player2").on("value", function(snapshot){
+
+    var player2 = snapshot.val();
+
+    console.log(player2);
+    if(window.self.name === "player1"){
+        player2Wins = player2.wins;
+        player2Losses = player2.losses;
+        player2Ties = player2.ties;
+
+        $("#player2Stats").html("W:" + player2.wins + " L:" + player2.losses + " T:" + player2.ties);
+    }
+    if (window.self.name === "player2"){
+        player2Wins = player2.wins;
+        player2Losses = player2.losses;
+        player2Ties = player2.ties;
+        
+        $("#player2Stats").html("W:" + player2.wins + " L:" + player2.losses + " T:" + player2.ties);
+    }
+});
 
 database.ref("players/Player1/comment").on("value", function(snapshot){
     var comment = snapshot.val()[player1I];
