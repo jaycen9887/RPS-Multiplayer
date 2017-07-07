@@ -35,7 +35,7 @@ var player2Ties = 0;
 var player2Comments = [];
 var player2I = 0;
 
-var round = 0;
+var round = 1;
 
 var bothResponses = 0;
 
@@ -43,6 +43,8 @@ var player;
 var players;
 
 var turn = 1;
+
+//functions
 
 function writePlayerData(player, name, wins, losses, ties, comment){
     database.ref('players/' + player).set({
@@ -96,6 +98,159 @@ $("#chatSubmit").on("click", function(e){
 
     } 
 });
+
+function checkWin (p1Choice, p2Choice){
+    console.log("Checking Win");
+    switch(p1Choice) {
+        case "rock":
+            switch(p2Choice){
+                case "rock":
+                    player1Ties++;
+                    player2Ties++;
+                    if(window.self.name === "player1"){
+                        nextRound();
+                    }else if(window.self.name === "player2"){
+                        nextRound();
+                    }
+                    break;
+                case "paper":
+                    player1Losses++;
+                    player2Wins++;
+                    nextRound();
+                    break;
+                case "scissors":
+                    player1Wins++;
+                    player2Losses++;
+                    nextRound();
+            }
+            break;
+        case "paper":
+            switch(p2Choice){
+                  case "rock":
+                    player1Wins++;
+                    player2Losses++;
+                    nextRound(); 
+                    break;
+                case "paper":
+                    player1Ties++;
+                    player2Ties++;
+                    nextRound();
+                    break;
+                case "scissors":
+                    player1Losses++;
+                    player2Wins++;
+                    nextRound(); 
+            }
+            break;
+        case "scissors":
+            switch(p2Choice){
+                  case "rock":
+                    player1Losses++;
+                    player2Wins++;
+                    nextRound();
+                    break;
+                case "paper":
+                    player1Wins++;
+                    player2Losses++;
+                    nextRound();
+                    break;
+                case "scissors":
+                    player1Ties++;
+                    player2Ties++;
+                    nextRound(); 
+            }
+            break;
+    }
+    
+    
+}
+
+function nextRound (){
+    updateData("Player1", player1Wins, player1Losses, player1Ties);
+    
+    updateData("Player2", player2Wins, player2Losses, player2Ties);
+
+    database.ref("players/Player1").on("value", function(snapshot){
+        if(window.self.name === "player1"){
+            var player1 = snapshot.val();
+            player1Wins = player1.wins;
+            player1Losses = player1.losses;
+            player1Ties = player1.ties;
+        }else if (window.self.name === "player2"){
+            var player1 = snapshot.val();
+            player1Wins = player1.wins;
+            player1Losses = player1.losses;
+            player1Ties = player1.ties;
+        }
+        
+    });
+
+    database.ref("players/Player2").on("value", function(snapshot){
+        
+        if(window.self.name === "player1"){
+            var player2 = snapshot.val();
+            player2Wins = player2.wins;
+            player2Losses = player2.losses;
+            player2Ties = player2.ties;
+        }
+        if (window.self.name === "player2"){
+            var player2 = snapshot.val();
+            player2Wins = player2.wins;
+            player2Losses = player2.losses;
+            player2Ties = player2.ties;
+        }
+    });
+    
+    round++; 
+             
+    bothResponses = 0;
+    
+    if(window.self.name === "player1"){
+        $("#player1Choices").toggleClass("invisible");
+    }
+    
+    if(window.self.name === "player2"){
+       $("#player2Choices").toggleClass("invisible");
+    }
+    updateResponses(bothResponses);
+    updateRounds(round);
+}
+
+function updateRounds(rounds){
+    playersRef.update({
+       "round": rounds 
+    });
+}
+
+function updateResponses(responses){
+    playersRef.update({
+       "bothResponses": responses 
+    });     
+}
+
+
+function updateData(player, wins, losses, ties){
+    var statusRef = playersRef.child(player);
+    
+    statusRef.update({
+        "wins": wins,
+        "losses": losses,
+        "ties": ties
+    });
+
+}
+
+function updateComments(player, comments){
+    
+   var commentRef = playersRef.child(player);
+    
+    commentRef.update({
+        "comment": comments    
+    });
+    
+}
+
+//database calls
 
 database.ref("players/Player1/comment").on("value", function(snapshot){
     var comment = snapshot.val()[player1I];
@@ -161,15 +316,30 @@ database.ref("players/").on("value", function(snapshot){
         player2 = snapshot.val().Player2;
         player2Name = player2.name;
         $("#player2Name").text(player2.name);
+        player2Name = player2.name;
     }else {
         player2Name = "";
         $("#player2Name").text("Enter name above"); 
     }
 });
 
+
+
 database.ref("players/bothResponses").on("value", function(snapshot){
    console.log(snapshot.val()); 
-    bothResponses = snapshot.val();
+    bothResponses = snapshot.val(); 
+    if(bothResponses === 2){
+            checkWin(p1CurrentChoice, p2CurrentChoice);
+            
+            var p1 = $("<p>");
+            p1.addClass("p1");
+            var p2 = $("<p>");
+            p2.addClass("p2")
+            p1.append(p1CurrentChoice);
+            $("#action").append(p1);
+            p2.append(p2CurrentChoice);
+            $("#action").append(p2);    
+        }
 });
 
  database.ref("players/Player1/rounds").on("value", function(snapshot){
@@ -187,135 +357,19 @@ database.ref("players/Player2/rounds").on("value", function(snapshot){
     
 });
 
-function checkWin (p1Choice, p2Choice){
-    console.log("Checking Win");
-    switch(p1Choice) {
-        case "rock":
-            switch(p2Choice){
-                case "rock":
-                    player1Ties++;
-                    player2Ties++;
-                    console.log("DRAW");
-                    return "draw";
-                case "paper":
-                    player1Losses++;
-                    player2Wins++;
-                    console.log("Player 2 Wins");
-                    return "Player 2 Wins!";
-                case "scissors":
-                    player1Wins++;
-                    player2Losses++;
-                    console.log("Player 1 Wins");
-                    return "Player 1 Wins!";
-            }
-            break;
-        case "paper":
-            switch(p2Choice){
-                  case "rock":
-                    player1Wins++;
-                    player2Losses++;
-                    console.log("Player 1 Wins");
-                    return "Player 1 Wins!"; 
-                case "paper":
-                    player1Ties++;
-                    player2Ties++;
-                    console.log("DRAW");
-                    return "draw";
-                case "scissors":
-                    player1Losses++;
-                    player2Wins++;
-                    console.log("Player 2 Wins");
-                    return "Player 2 Wins!"; 
-            }
-            break;
-        case "scissors":
-            switch(p2Choice){
-                  case "rock":
-                    player1Losses++;
-                    player2Wins++;
-                    console.log("Player 2 Wins");
-                    return "Player 2 Wins!";
-                case "paper":
-                    player1Wins++;
-                    player2Losses++;
-                    console.log("Player 1 Wins");
-                    return "Player 1 Wins!";
-                case "scissors":
-                    player1Ties++;
-                    player2Ties++;
-                    console.log("DRAW");
-                    return "draw"; 
-            }
-            break;
-    }
-    updateData("Player1", player1Wins, player1Losses, player1Ties);
-    
-    updateData("Player2", player2Wins, player2Losses, player2Ties);
-    
-    nextRound();
-}
-
-function nextRound (){
-    round++; 
-    bothResponses = 0;
-    updateResponses(bothResponses);
-    if(window.self.name === "player1"){
-        $("#player1Choices").toggleClass("invisible");
-    }else if(window.self.name === "player2"){
-        $("#player2Choices").toggleClass("invisible");
-    }
-}
-
-function updateResponses(responses){
-    playersRef.update({
-       "bothResponses": responses 
-    });
-    /*var key = statusRef.push().key;
-    var update = {};
-    update[key] = {
-        bothResponses: responses,
-    };
-    var result = statusRef.update(update);*/
-     
-}
 
 
-function updateData(player, wins, losses, ties){
-    var statusRef = playersRef.child(player);
-    
-    statusRef.update({
-        "wins": wins,
-        "losses": losses,
-        "ties": ties
-    });
-    /*var key = statusRef.push().key;
-    var update = {};
-    update[key] = {
-        wins: wins,
-        losses: losses,
-        ties: ties
-    };
-    var result = statusRef.update(update);
-    
-    */
-}
-
-function updateComments(player, comments){
-    
-   var commentRef = playersRef.child(player);
-    
-    commentRef.update({
-        "comment": comments    
-    });
-    
-}
-
+database.ref("players/round").on("value", function(snapshot){
+   $("#round").text(snapshot.val()); 
+});
 
 $(document).ready(function(){
+    updateRounds(round);
     
     //checks if window was refreshed
    if(performance.navigation.type == 1){
        database.ref().child("players/bothResponses").remove();
+       database.ref().child("players/round").remove();
        if(window.self.name == "player1"){
            database.ref().child("players/Player1").remove();
            window.self.name = "";
@@ -329,7 +383,7 @@ $(document).ready(function(){
     $(".choice").on("click", function(){ 
    
         if(window.self.name == "player1"){
-            var answer = $(this)[0].innerHTML;
+            var answer = $(this)[0].attributes[1].nodeValue;
             player1Choice.push(answer);
             bothResponses++;
             updateResponses(bothResponses);
@@ -341,7 +395,7 @@ $(document).ready(function(){
             $("#player1Choices").toggleClass("invisible");
             
         }else if(window.self.name == "player2"){
-            var answer = $(this)[0].innerHTML;
+            var answer = $(this)[0].attributes[1].nodeValue;
             player2Choice.push(answer);
             bothResponses++;
             updateResponses(bothResponses);
@@ -352,22 +406,6 @@ $(document).ready(function(){
             
             $("#player2Choices").toggleClass("invisible");
         }
-        
-        
-        
-       
-        if(bothResponses === 2){
-            checkWin(p1CurrentChoice, p2CurrentChoice);
-            
-            var p1 = $("<p>");
-            p1.addClass("");
-            var p2 = $("<p>"); 
-            p1.append(p1CurrentChoice);
-            $("#action").append(p);
-            p.append(p2CurrentChoice);
-            $("#action").append(p);    
-        }
-
     });
 });
 
